@@ -3,6 +3,7 @@
 @import './transition.scss';
 @import './element-ui.scss';
 @import './sidebar.scss';
+@import './reset.scss';
 
 body {
   height: 100%;
@@ -62,4 +63,15 @@ div:focus {
 // main-container global css
 .app-container {
   padding: 20px;
+}
+
+/* 提示框的样式 */
+.g6-component-tooltip {
+  border: 1px solid #e2e2e2;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #545454;
+  background-color: rgba(255, 255, 255, 0.9);
+  padding: 10px 8px;
+  box-shadow: rgb(174, 174, 174) 0px 0px 10px;
 }

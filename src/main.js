@@ -15,6 +15,11 @@ import router from './router'
 import '@/icons' // icon
 import '@/permission' // permission control
 
+// 引入ECharts并挂载，之后通过this.$echarts调用
+import * as echarts from 'echarts';
+Vue.prototype.$echarts = echarts
+
+
 /**
  * If you don't want to use mock-server
  * you want to use MockJs for mock api
