@@ -10,11 +10,13 @@ const tooltip = new G6.Tooltip({
       // console.log(e.item.getModel())
       outDiv.innerHTML = `
         <h4>${e.item.getModel()['node_name']}</h4>
-        <span>${e.item.getModel().degree}</span>`
+        <span>${e.item.getModel()['node_degree']}</span>`
     } else if(e.item['_cfg'].type === 'edge') {
       outDiv.innerHTML = `
-        <h4>${e.item.getModel().id[0]}</h4>
-        <span>source: ${e.item.getModel().source}, target: ${e.item.getModel().target}</span>
+        <h4>relation-type: 关注</h4>
+        <span>source: ${e.item.getModel()['source_name']}</span>
+        <br />
+        <span>target: ${e.item.getModel()['target_name']}</span>
       `
     }
     return outDiv
