@@ -53,6 +53,7 @@ export default {
     setTimeout(() => {
       this.boundEvent();
     }, 200)
+    Bus.$on('bound-event', this.boundEvent);
   },
 }
 </script>

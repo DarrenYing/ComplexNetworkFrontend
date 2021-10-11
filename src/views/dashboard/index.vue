@@ -20,6 +20,7 @@ import {getGraphData} from "@/api/dashboard";
 import ConfigPanel from "@/components/ConfigPanel";
 import HeaderBar from "@/components/HeaderBar";
 import RelationGraph from "@/global/graph";
+import Bus from "@/utils/bus";
 
 export default {
   name: 'Dashboard',
@@ -43,8 +44,14 @@ export default {
           item.id = String(item.id)
         })
         console.log(data)
-        // this.initGraph(data);
-        this.init(data);
+        // 如果已存在，则更改数据
+        if(this.graph) {
+          this.graph.changeData(data);
+        }
+        else {
+          // this.initGraph(data);
+          this.init(data);
+        }
       })
     },
 
@@ -68,6 +75,7 @@ export default {
 
   mounted() {
     this.fetchData();
+    Bus.$on('fetch-graph-data', this.fetchData);
   }
 }
 </script>

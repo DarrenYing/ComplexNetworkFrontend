@@ -8,7 +8,7 @@ export default class RelationGraph {
   static init(graphData) {
     const container = document.getElementById('mainGraph');
     const width = container.scrollWidth;
-    console.log(container.scrollHeight)
+    // console.log(container.scrollHeight)
     const height = container.scrollHeight || 500;
     this.graph = new G6.Graph({
       container: container,
@@ -140,6 +140,10 @@ export default class RelationGraph {
 
   static destroy() {
     this.graph.destroy();
+  }
+
+  static clear() {
+    this.graph.clear();
   }
 
 }

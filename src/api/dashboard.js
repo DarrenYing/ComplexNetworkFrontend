@@ -34,3 +34,18 @@ export function getEdgeAttr(data) {
   })
 }
 
+export function attackNetwork(data) {
+  return service.request({
+    url: '/network/network-attack',
+    method: 'post',
+    data,
+  })
+}
+
+export function retrieveNetwork() {
+  return service.request({
+    url: '/network/network-retrieve',
+    method: 'get',
+  })
+}
+
