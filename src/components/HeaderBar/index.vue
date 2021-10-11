@@ -7,7 +7,9 @@
       <el-col :span="1" class="left">{{ averageShortestPathLength }}</el-col>
       <el-col :span="3">网络核数：</el-col>
       <el-col :span="1" class="left">{{ coreness }}</el-col>
-      <el-col :span="8" class="right button-group">
+      <el-col :span="10" class="right button-group">
+        <label class="label">请输入攻击数量:</label>
+        <el-input v-model="attacked_times" class="inline-input"></el-input>
         <el-tooltip content="随机删除一个节点" placement="top-start">
           <el-button type="warning" style="margin-right: 1vw" @click="attack('random')">随机攻击</el-button>
         </el-tooltip>
@@ -24,9 +26,9 @@
         <el-col :span="2">鲁棒性分析：</el-col>
       </el-tooltip>
       <el-col :span="1" class="left">{{ connectionRatio }}</el-col>
-      <el-col :span="3">被攻击节点：</el-col>
+      <el-col :span="2">被攻击节点：</el-col>
       <el-col :span="2" class="left">{{ attackedNode.name }}</el-col>
-      <el-col :span="3">被攻击节点度数：</el-col>
+      <el-col :span="2">被攻击节点度数：</el-col>
       <el-col :span="1" class="left">{{ attackedNode.degree }}</el-col>
       <el-col :span="4" style="margin-left: 10vw">
         <el-select v-model="layout" placeholder="请选择" @change="setGraphLayout">
@@ -81,6 +83,7 @@ export default {
 
       // attack
       connectionRatio: 1, // 最大连通子图中节点的个数占原先最大连通子图节点个数的比例
+      attacked_times: 1,  // 攻击次数
       attackedNode: {
         degree: '',
         name: '',
@@ -141,15 +144,27 @@ export default {
     attack(method) {
       let params = {
         'method': method,
+        'attacked_times': this.attacked_times,
       }
       attackNetwork(params).then(res => {
         let data = res.data
+        console.log(data)
         this.clusteringCoefficient = data['new_network']['net_clustering_coefficient']
         this.coreness = data['new_network']['net_coreness']
         this.averageShortestPathLength = data['new_network']['average_shortest_path_length']
         this.connectionRatio = data['robust_evaluation']['connection_ratio']
-        this.attackedNode.name = data['robust_evaluation']['attacked_node_name']
-        this.attackedNode.degree = data['robust_evaluation']['attacked_node_degree']
+        // 赋值前先重置
+        this.attackedNode = {
+          degree: '',
+          name: '',
+        };
+        let nodes = data['robust_evaluation']['attacked_nodes']
+        nodes.forEach(node => {
+          this.attackedNode.name += node['attacked_node_name'] + ', '
+          this.attackedNode.degree += node['attacked_node_degree'] + ', '
+        })
+        // this.attackedNode.name = data['robust_evaluation']['attacked_nodes'][0]['attacked_node_name']
+        // this.attackedNode.degree = data['robust_evaluation']['attacked_nodes'][0]['attacked_node_degree']
         // 重新获取图数据
         Bus.$emit('fetch-graph-data');
         // 重新绑定事件
@@ -279,7 +294,13 @@ export default {
 }
 
 .label {
-  font-size: 16px;
+  font: inherit;
+  margin-right: 10px;
+}
+
+.inline-input {
+  width: 80px;
+  margin-right: 1vw;
 }
 
 </style>
