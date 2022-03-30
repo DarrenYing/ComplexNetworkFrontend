@@ -38,6 +38,9 @@ Vue.use(ElementUI, { locale })
 // 如果想要中文版 element-ui，按如下方式声明
 // Vue.use(ElementUI)
 
+// 引入自定义loading
+import './assets/loading/loading.css'
+
 Vue.config.productionTip = false
 
 new Vue({

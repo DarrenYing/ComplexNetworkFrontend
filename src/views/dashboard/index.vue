@@ -108,7 +108,7 @@ export default {
 .config {
   //box-sizing: border-box;
   display: inline-block;
-  width: 20vw;
+  width: 22vw;
   //height: 500px;
   padding: 0 10px;
   border-left: 1px solid rgba(0, 0, 0, 0.08);

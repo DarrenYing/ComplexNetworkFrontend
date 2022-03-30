@@ -1,36 +1,36 @@
 <template>
   <div>
     <el-row type="flex" align="middle" class="header-row" :gutter="10">
-      <el-col :span="2">网络聚集系数：</el-col>
+      <el-col :span="3">网络聚集系数：</el-col>
       <el-col :span="1" class="left">{{ clusteringCoefficient }}</el-col>
       <el-col :span="3">平均最短路径长度：</el-col>
       <el-col :span="1" class="left">{{ averageShortestPathLength }}</el-col>
       <el-col :span="3">网络核数：</el-col>
       <el-col :span="1" class="left">{{ coreness }}</el-col>
-      <el-col :span="10" class="right button-group">
-        <label class="label">请输入攻击数量:</label>
-        <el-input v-model="attacked_times" class="inline-input"></el-input>
-        <el-tooltip content="随机删除一个节点" placement="top-start">
-          <el-button type="warning" style="margin-right: 1vw" @click="attack('random')">随机攻击</el-button>
-        </el-tooltip>
-        <el-tooltip content="删除度数最大的节点" placement="top-start">
-          <el-button type="danger" style="margin-right: 1vw" @click="attack('intention')">蓄意攻击</el-button>
-        </el-tooltip>
-        <el-tooltip content="恢复初始图数据" placement="top-start">
-          <el-button type="success" @click="retrieve">重置</el-button>
-        </el-tooltip>
-      </el-col>
+<!--      <el-col :span="10" class="right button-group">-->
+<!--        <label class="label">攻击数:</label>-->
+<!--        <el-input v-model="attacked_times" class="inline-input"></el-input>-->
+<!--        <el-tooltip content="随机删除一个节点" placement="top-start">-->
+<!--          <el-button type="warning" style="margin-right: 1vw" @click="attack('random')">随机攻击</el-button>-->
+<!--        </el-tooltip>-->
+<!--        <el-tooltip content="删除度数最大的节点" placement="top-start">-->
+<!--          <el-button type="danger" style="margin-right: 1vw" @click="attack('intention')">蓄意攻击</el-button>-->
+<!--        </el-tooltip>-->
+<!--        <el-tooltip content="恢复初始图数据" placement="top-start">-->
+<!--          <el-button type="success" @click="retrieve">重置</el-button>-->
+<!--        </el-tooltip>-->
+<!--      </el-col>-->
     </el-row>
-    <el-row type="flex" align="middle" class="header-row" :gutter="10">
-      <el-tooltip content="最大连通子图中节点的个数占原先最大连通子图节点个数的比例" placement="top-start">
-        <el-col :span="2">鲁棒性分析：</el-col>
-      </el-tooltip>
-      <el-col :span="1" class="left">{{ connectionRatio }}</el-col>
-      <el-col :span="2">被攻击节点：</el-col>
-      <el-col :span="2" class="left">{{ attackedNode.name }}</el-col>
-      <el-col :span="2">被攻击节点度数：</el-col>
-      <el-col :span="1" class="left">{{ attackedNode.degree }}</el-col>
-      <el-col :span="4" style="margin-left: 10vw">
+    <el-row type="flex" align="middle" class="header-row" :gutter="10" style="margin-top: 3vh">
+<!--      <el-tooltip content="最大连通子图中节点的个数占原先最大连通子图节点个数的比例" placement="top-start">-->
+<!--        <el-col :span="2">鲁棒性分析：</el-col>-->
+<!--      </el-tooltip>-->
+<!--      <el-col :span="1" class="left">{{ connectionRatio }}</el-col>-->
+<!--      <el-col :span="2">被攻击节点：</el-col>-->
+<!--      <el-col :span="2" class="left">{{ attackedNode.name }}</el-col>-->
+<!--      <el-col :span="2">被攻击节点度数：</el-col>-->
+<!--      <el-col :span="1" class="left">{{ attackedNode.degree }}</el-col>-->
+      <el-col :span="4">
         <el-select v-model="layout" placeholder="请选择" @change="setGraphLayout">
           <el-option
             v-for="item in layoutOptions"
@@ -40,36 +40,25 @@
           </el-option>
         </el-select>
       </el-col>
+      <el-col :span="10">
+        <label class="label">社区数:</label>
+        <el-input v-model="communityNum" class="inline-input"></el-input>
+        <el-select v-model="communityMethod" placeholder="请选择">
+          <el-option
+            v-for="item in communityDetectMethodOptions"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
+        <el-button type="primary" style="margin-left: 1vw" @click="communityDetect()">社区检测</el-button>
+      </el-col>
     </el-row>
-<!--    <el-row type="flex" align="middle" class="header-row" :gutter="10">-->
-<!--      <el-col :span="2" style="max-width: 100px">-->
-<!--&lt;!&ndash;        <label class="label"></label>&ndash;&gt;-->
-<!--        节点的度-->
-<!--      </el-col>-->
-<!--      <el-col :span="3">-->
-<!--        <el-input-->
-<!--          placeholder="min"-->
-<!--          suffix-icon="el-icon-arrow-down"-->
-<!--          v-model="form.minDegree">-->
-<!--        </el-input>-->
-<!--      </el-col>-->
-<!--      <el-col :span="3">-->
-<!--        <el-input-->
-<!--          placeholder="max"-->
-<!--          suffix-icon="el-icon-arrow-up"-->
-<!--          v-model="form.maxDegree">-->
-<!--        </el-input>-->
-<!--      </el-col>-->
-<!--      <el-col :span="1"></el-col>-->
-<!--      <el-col :span="2">-->
-<!--        <el-button type="primary" @click="submit">筛选</el-button>-->
-<!--      </el-col>-->
-<!--    </el-row>-->
   </div>
 </template>
 
 <script>
-import {attackNetwork, getNetAttr, retrieveNetwork} from "@/api/dashboard";
+import {attackNetwork, getNetAttr, retrieveNetwork, getGraphDataWithCommunity} from "@/api/dashboard";
 import RelationGraph from "@/global/graph";
 import Bus from "@/utils/bus";
 
@@ -129,6 +118,24 @@ export default {
           label: '重置布局',
         },
       ],
+
+      // 社区检测
+      communityNum: 2,
+      communityMethod: 'girvan_newman',
+      communityDetectMethodOptions: [
+        {
+          value: 'girvan_newman',
+          label: 'Girvan Newman',
+        },
+        {
+          value: 'greedy_modularity',
+          label: 'Greedy Modularity',
+        },
+        {
+          value: 'spectral_partition',
+          label: 'Spectral Clustering',
+        },
+      ]
     }
   },
   methods: {
@@ -197,9 +204,21 @@ export default {
 
     },
 
+    // 社区检测
+    communityDetect() {
+      const {graph} = RelationGraph;
+      let params = {
+        'community_num': this.communityNum,
+        'method': this.communityMethod,
+      }
+      getGraphDataWithCommunity(params).then(res => {
+        console.log(res)
+        graph.changeData(res.data)
+      })
+    },
+
     // 更换图布局，由于参数不同，只给定有限的几种
     setGraphLayout(layout) {
-      console.log(layout)
       const {graph} = RelationGraph;
       switch (layout) {
         case 'circular-topology':

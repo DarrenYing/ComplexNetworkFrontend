@@ -49,3 +49,12 @@ export function retrieveNetwork() {
   })
 }
 
+export function getGraphDataWithCommunity(data) {
+  return service.request({
+    url: '/network/graph-data-community',
+    method: 'post',
+    data,
+  })
+}
+
+

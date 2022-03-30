@@ -7,3 +7,11 @@ export function getChartData() {
     // baseURL: 'https://www.fastmock.site/mock/8b12587a257ad528246ccd0ac318778e/api',
   })
 }
+
+export function getInfluenceChartData(data) {
+  return request({
+    url: '/network/influence-comparison',
+    method: 'post',
+    data
+  })
+}

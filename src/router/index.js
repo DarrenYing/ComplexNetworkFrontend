@@ -69,6 +69,19 @@ export const constantRoutes = [
   },
 
   {
+    path: '/influence',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Influence Maximization',
+        component: () => import('@/views/influenceMaximization/index'),
+        meta: { title: '影响力最大化', icon: 'tree' }
+      }
+    ]
+  },
+
+  {
     path: 'external-link',
     component: Layout,
     children: [

@@ -20,6 +20,8 @@ export default class RelationGraph {
           'drag-canvas',
           'drag-node',
           'zoom-canvas',
+          'drag-combo',
+          'collapse-expand-combo',
         ],
       },
       layout: {
@@ -69,7 +71,14 @@ export default class RelationGraph {
       // 适配画布
       fitView: true,
       fitViewPadding: [100, 50, 100, 50],
-
+      // Combos相关
+      groupByTypes: false,
+      defaultCombo: {
+        style: {
+          fill: '',
+          lineWidth: 2,
+        },
+      },
     });
     this.initGraphData(graphData);  // 初始化图数据
     this.initEvent(); // 初始化图绑定事件
@@ -131,6 +140,26 @@ export default class RelationGraph {
     graph.on('afterlayout', e => {
       graph.fitView(0);
     })
+
+    // 监听combo相关
+    graph.on('combo:mouseenter', (evt) => {
+      const { item } = evt;
+      graph.setItemState(item, 'active', true);
+    });
+
+    graph.on('combo:mouseleave', (evt) => {
+      const { item } = evt;
+      graph.setItemState(item, 'active', false);
+    });
+    // graph.on('combo:click', (evt) => {
+    //   const { item } = evt;
+    //   graph.setItemState(item, 'selected', true);
+    // });
+    // graph.on('canvas:click', (evt) => {
+    //   graph.getCombos().forEach((combo) => {
+    //     graph.clearItemStates(combo);
+    //   });
+    // });
 
   }
 
