@@ -3,33 +3,33 @@
     <el-row type="flex" align="middle" class="header-row" :gutter="10">
       <el-col :span="3">网络聚集系数：</el-col>
       <el-col :span="1" class="left">{{ clusteringCoefficient }}</el-col>
-      <el-col :span="3">平均最短路径长度：</el-col>
+      <el-col :span="4">平均最短路径长度：</el-col>
       <el-col :span="1" class="left">{{ averageShortestPathLength }}</el-col>
       <el-col :span="3">网络核数：</el-col>
       <el-col :span="1" class="left">{{ coreness }}</el-col>
-<!--      <el-col :span="10" class="right button-group">-->
-<!--        <label class="label">攻击数:</label>-->
-<!--        <el-input v-model="attacked_times" class="inline-input"></el-input>-->
-<!--        <el-tooltip content="随机删除一个节点" placement="top-start">-->
-<!--          <el-button type="warning" style="margin-right: 1vw" @click="attack('random')">随机攻击</el-button>-->
-<!--        </el-tooltip>-->
-<!--        <el-tooltip content="删除度数最大的节点" placement="top-start">-->
-<!--          <el-button type="danger" style="margin-right: 1vw" @click="attack('intention')">蓄意攻击</el-button>-->
-<!--        </el-tooltip>-->
-<!--        <el-tooltip content="恢复初始图数据" placement="top-start">-->
-<!--          <el-button type="success" @click="retrieve">重置</el-button>-->
-<!--        </el-tooltip>-->
-<!--      </el-col>-->
+      <el-col :span="12" class="right button-group">
+        <label class="label">攻击数:</label>
+        <el-input v-model="attacked_times" class="inline-input"></el-input>
+        <el-tooltip content="随机删除一个节点" placement="top-start">
+          <el-button type="warning" style="margin-right: 1vw" @click="attack('random')">随机攻击</el-button>
+        </el-tooltip>
+        <el-tooltip content="删除度数最大的节点" placement="top-start">
+          <el-button type="danger" style="margin-right: 1vw" @click="attack('intention')">蓄意攻击</el-button>
+        </el-tooltip>
+        <el-tooltip content="恢复初始图数据" placement="top-start">
+          <el-button type="success" @click="retrieve">重置</el-button>
+        </el-tooltip>
+      </el-col>
     </el-row>
     <el-row type="flex" align="middle" class="header-row" :gutter="10" style="margin-top: 3vh">
-<!--      <el-tooltip content="最大连通子图中节点的个数占原先最大连通子图节点个数的比例" placement="top-start">-->
-<!--        <el-col :span="2">鲁棒性分析：</el-col>-->
-<!--      </el-tooltip>-->
-<!--      <el-col :span="1" class="left">{{ connectionRatio }}</el-col>-->
-<!--      <el-col :span="2">被攻击节点：</el-col>-->
-<!--      <el-col :span="2" class="left">{{ attackedNode.name }}</el-col>-->
-<!--      <el-col :span="2">被攻击节点度数：</el-col>-->
-<!--      <el-col :span="1" class="left">{{ attackedNode.degree }}</el-col>-->
+      <el-tooltip content="最大连通子图中节点的个数占原先最大连通子图节点个数的比例" placement="top-start">
+        <el-col :span="2">鲁棒性分析：</el-col>
+      </el-tooltip>
+      <el-col :span="1" class="left">{{ connectionRatio }}</el-col>
+      <el-col :span="2">被攻击节点：</el-col>
+      <el-col :span="2" class="left">{{ attackedNode.name }}</el-col>
+      <el-col :span="3">被攻击节点度数：</el-col>
+      <el-col :span="2" class="left">{{ attackedNode.degree }}</el-col>
       <el-col :span="4">
         <el-select v-model="layout" placeholder="请选择" @change="setGraphLayout">
           <el-option
@@ -69,6 +69,9 @@ export default {
       clusteringCoefficient: 0,
       averageShortestPathLength: 0,
       coreness: 0,
+
+      // 加载
+      loading: false,
 
       // attack
       connectionRatio: 1, // 最大连通子图中节点的个数占原先最大连通子图节点个数的比例
@@ -166,10 +169,13 @@ export default {
           name: '',
         };
         let nodes = data['robust_evaluation']['attacked_nodes']
-        nodes.forEach(node => {
+        let last_node = nodes[nodes.length-1]
+        nodes.slice(0, nodes.length-1).forEach(node => {
           this.attackedNode.name += node['attacked_node_name'] + ', '
           this.attackedNode.degree += node['attacked_node_degree'] + ', '
         })
+        this.attackedNode.name += last_node['attacked_node_name']
+        this.attackedNode.degree += last_node['attacked_node_degree']
         // this.attackedNode.name = data['robust_evaluation']['attacked_nodes'][0]['attacked_node_name']
         // this.attackedNode.degree = data['robust_evaluation']['attacked_nodes'][0]['attacked_node_degree']
         // 重新获取图数据
@@ -206,6 +212,7 @@ export default {
 
     // 社区检测
     communityDetect() {
+      this.loading = true
       const {graph} = RelationGraph;
       let params = {
         'community_num': this.communityNum,
@@ -213,7 +220,46 @@ export default {
       }
       getGraphDataWithCommunity(params).then(res => {
         console.log(res)
+        graph.edge((edge) => {
+          return {
+            id: edge.id,
+            style: {
+              stroke: '#000',
+              lineWidth: 4,
+              lineAppendWidth: 2,
+              endArrow: true,
+            },
+          };
+        });
+        graph.node((node) => {
+          return {
+            id: node.id,
+            size: 16,
+            style: {
+              fill: '#55efc4',
+            }
+          }
+        })
+        graph.combo((combo) => {
+          return {
+            id: combo.id,
+            style: {
+              stroke: '#636e72',
+              lineWidth: 3,
+            },
+            labelCfg: {
+              style: {
+                fontSize: 44,
+              }
+            }
+          }
+        })
         graph.changeData(res.data)
+        // 设置图布局为comboForce
+        graph.updateLayout({
+          type: 'comboForce',
+        })
+        this.loading = false
       })
     },
 

@@ -1,45 +1,25 @@
 <template>
   <div class="app-container">
     <el-header class="title">{{ title }}</el-header>
-    <el-row type="flex" align="middle" class="header-row" :gutter="10">
-      <el-col :span="4" style="height: 40px; line-height: 40px;">
-        <el-radio v-model="isWeighted" label="unweighted">无权重</el-radio>
-        <el-radio v-model="isWeighted" label="weighted">有权重</el-radio>
-      </el-col>
-      <el-col :span="4" style="height: 40px">
-        <label class="label">概率:</label>
-        <el-input v-model="possibility" class="inline-input" :disabled="isWeighted === 'weighted'"></el-input>
-      </el-col>
-      <el-col :span="6" style="height: 40px">
-        <label class="label">模拟次数:</label>
-        <el-input-number v-model="epochs" :step="1" :min="3" :max="30"></el-input-number>
-      </el-col>
-      <el-col :span="4">
-        <el-button type="success" size="middle" @click="submit">提交</el-button>
-      </el-col>
-    </el-row>
     <div
       v-loading="loading"
       element-loading-text="别催了别催了，在画了..."
       element-loading-background="rgba(255, 255, 255, 0.8)"
       class="echarts-canvas"
-      id="lineChart">
+      id="communityLineChart">
     </div>
   </div>
 </template>
 
 <script>
-import {getInfluenceChartData} from "@/api/analysis";
+import {getCommunityChartData} from "@/api/analysis";
+import cache from "@/utils/cache";
 
 export default {
-  name: "InfluenceMaximization",
+  name: "CommunityEvaluation",
   data() {
     return {
-      title: '影响力最大化分析',
-      // 配置参数
-      isWeighted: 'unweighted',
-      possibility: '0.5',
-      epochs: 5,
+      title: '社区划分的质量评估',
       // echarts相关
       xAxisLabel: [],
       graphData: [],
@@ -51,34 +31,42 @@ export default {
     }
   },
   mounted() {
-
-  },
-  methods: {
-    submit() {
-      let p = this.possibility === '' ? '0.5' : this.possibility
-      let params = {
-        'is_weighted': this.isWeighted,
-        'possibility': p,
-        'epochs': this.epochs,
-      }
-      this.loading = true
-      getInfluenceChartData(params).then(res => {
+    this.loading = true
+    if(cache['data']) {
+      console.log(cache['data'])
+      this.receiveData(cache['data'])
+      this.initChart()
+      this.loading = false
+    }
+    else{
+      getCommunityChartData().then(res => {
         let data = res.data
-        this.xAxisLabel = data['x_axis_label']
-        this.xAxisName = data['x_axis_name']
-        this.yAxisName = data['y_axis_name']
-        this.legend = data['legend']
-        this.graphData = data['graph_data']
+        this.setData(data)
+        this.receiveData(data)
         this.initChart()
         this.loading = false
       }).catch(err => {
         this.loading = false
         this.$message.warning('请重试~')
       })
+    }
+  },
+  methods: {
+
+    receiveData(data) {
+      this.xAxisLabel = data['x_axis_label']
+      this.xAxisName = data['x_axis_name']
+      this.yAxisName = data['y_axis_name']
+      this.legend = data['legend']
+      this.graphData = data['graph_data']
+    },
+
+    setData(data) {
+      cache['data'] = data
     },
 
     initChart() {
-      let chartId = 'lineChart';
+      let chartId = 'communityLineChart';
       let chartContainer = document.getElementById(chartId)
       if (document.getElementById(chartId) == null) {
         console.log('该chart元素不存在');
@@ -107,7 +95,7 @@ export default {
           }
         },
         legend: {
-          data: this.legend
+          data: this.legend,
         },
         grid: {
           left: '3%',
@@ -164,7 +152,7 @@ export default {
   margin-right: 1vw;
 }
 
-#lineChart {
+#communityLineChart {
   width: 80vw;
   height: 60vh;
 }

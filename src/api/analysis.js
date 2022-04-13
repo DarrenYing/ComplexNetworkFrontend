@@ -15,3 +15,10 @@ export function getInfluenceChartData(data) {
     data
   })
 }
+
+export function getCommunityChartData() {
+  return request({
+    url: '/network/community-evaluation',
+    method: 'get',
+  })
+}

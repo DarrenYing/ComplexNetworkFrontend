@@ -63,7 +63,20 @@ export const constantRoutes = [
         path: 'index',
         name: 'Analysis',
         component: () => import('@/views/analysis/index'),
-        meta: { title: '网络分析', icon: 'form' }
+        meta: { title: '网络度分布', icon: 'form' }
+      }
+    ]
+  },
+
+  {
+    path: '/community',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Community Evaluation',
+        component: () => import('@/views/communityEvaluation/index'),
+        meta: { title: '社区划分评估', icon: 'tree' }
       }
     ]
   },
@@ -76,7 +89,7 @@ export const constantRoutes = [
         path: 'index',
         name: 'Influence Maximization',
         component: () => import('@/views/influenceMaximization/index'),
-        meta: { title: '影响力最大化', icon: 'tree' }
+        meta: { title: '影响力最大化', icon: 'nested' }
       }
     ]
   },
