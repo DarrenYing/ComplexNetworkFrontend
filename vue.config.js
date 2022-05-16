@@ -39,7 +39,7 @@ module.exports = {
     // before: require('./mock/mock-server.js'),
     proxy: {
       '/dev-api': { // 对 /wyy/xxx 的请求会将请求代理到 http://localhost:8000/wyy/xxx
-        target: 'http://localhost:8000/',
+        target: 'http://10.249.181.72:8000/',
         changeOrigin: true,
         pathRewrite: {
           '^/dev-api': ''
